@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candle Data Feed</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <h1>Market Data Live Feed</h1>
+    
+    <p>Connection Status: <strong id="connection-status" class="status-disconnected">Disconnected</strong></p>
+    
+    <button id="connect-btn">Connect to Feed</button>
+    <button id="history-btn">Fetch History (HTTP GET)</button>
+
+    <h2>Latest Candle Data (WebSocket)</h2>
+    <div id="candle-output">
+        Awaiting data...
+    </div>
+
+    <h2>Past 10 Candles (HTTP History)</h2>
+    <ul id="history-list">
+        <li>No history loaded.</li>
+    </ul>
+
+    <h2>Candle Stick Chart</h2>
+    <div id="chart-div"></div>
+
+    <script src="js/uiUtils.js"></script>
+    <script src="js/apiServices.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/candle.js"></script>
+    
+</body>
+</html>
