@@ -4,7 +4,7 @@ function init() {
     if (window._ws) return;
         window._ws = api.connectWebSocket((candle) => {
             ui.displayLatestCandle(candle);
-            window.chart.addCandleData([candle]);
+            window.chart.addCandleData(candle);
             window.chart.updateCandle(candle);
         }, ui.updateStatus);
     });
@@ -12,7 +12,9 @@ function init() {
     document.getElementById('history-btn').addEventListener('click', async () => {
         try {
             const candles = await api.fetchHistory(100);
+            window.chart.emptyChart();
             window.chart.addCandleData(candles);  // Add to chart
+            window.chart.updateCandle(candles);  // Update last candle
             // ui.renderHistory(candles);
         } catch {
             // ui.renderHistory([]);

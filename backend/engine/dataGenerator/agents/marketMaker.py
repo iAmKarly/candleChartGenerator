@@ -16,7 +16,7 @@ class MarketMaker:
         if side == "buy":
             reference = best_bid if best_bid is not None else (best_ask if best_ask is not None else self.last_price)
             price = reference * (1 - random.uniform(0.001, 0.02))
-        else:
+        elif side == "sell":
             reference = best_ask if best_ask is not None else (best_bid if best_bid is not None else self.last_price)
             price = reference * (1 + random.uniform(0.001, 0.02))
 
