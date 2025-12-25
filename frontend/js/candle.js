@@ -1,6 +1,8 @@
 let chartInstance = null;
 let candlestickSeriesInstance = null;
 let candlestickVolumeInstance = null;
+let candleSeriesData = [];
+let volumeSeriesData = [];
 
 function initChart() {
   const { createChart, CandlestickSeries, HistogramSeries } = window.LightweightCharts;
@@ -35,48 +37,79 @@ function emptyChart() {
   if (candlestickSeriesInstance) {
     candlestickSeriesInstance.setData([]);
     candlestickVolumeInstance.setData([]);
+    candleSeriesData = [];
+    volumeSeriesData = [];
   } 
 }
 
-function addCandleData(data) {
-  if (candlestickSeriesInstance) {
-    const candleData = Array.isArray(data) ? data : [data];
-    const currentCandleData = candlestickSeriesInstance.data();
-    const combinedCandleData = currentCandleData.concat(candleData);
-    const currentVolumeData = candlestickVolumeInstance.data();
-    const combinedVolumeData = currentVolumeData.concat(candleData.map(d => ({ time: d.time, value: d.volume })));
-    candlestickSeriesInstance.setData(combinedCandleData);
-    candlestickVolumeInstance.setData(combinedVolumeData);
-  }
-}
-
-function updateCandle(data) {
-  if (!candlestickSeriesInstance) return;
-
-  const normalize = (d) => ({
-    time: (typeof d.time === 'string') ? d.time : Math.floor(Number(d.time)),
-    open: Number(d.open),
-    high: Number(d.high),
-    low: Number(d.low),
-    close: Number(d.close),
-    volume: Number(d.volume) || 0
-  });
-
-  const candle = Array.isArray(data) ? data[data.length - 1] : data;
-  if (!candle) return;
-  const c = normalize(candle);
-
-  const existing = candlestickSeriesInstance.data() || [];
-  if (existing.length === 0) {
-    candlestickSeriesInstance.setData([c]);
-    if (candlestickVolumeInstance) candlestickVolumeInstance.setData([{ time: c.time, value: c.volume }]);
+function updateCandlSeries(data, period = 1) {
+  if (data.length != undefined) {
+    emptyChart();
+    candleSeriesData = data ;
+    volumeSeriesData = data.map(d => ({ time: d.time, value: d.volume }) );
   } else {
-    // realistic behavior: update only the last/current candle
-    candlestickSeriesInstance.update(c);
-    if (candlestickVolumeInstance) candlestickVolumeInstance.update({ time: c.time, value: c.volume });
+    candleSeriesData.push(data);
+    volumeSeriesData.push({ time: data.time, value: data.volume } );
   }
-
-
+  updateChart(data, period);
 }
 
-window.chart = { initChart, addCandleData, updateCandle, emptyChart };
+function updateChart(data, period = 1) {
+  if (data.length > 1) {
+    aggregateToPeriod(period);
+  } else {
+    aggregateLastCandleToPeriod(data, period);
+  }
+}
+
+function aggregateToPeriod(period) {
+  if (period <= 1) {
+    candlestickSeriesInstance.setData(candleSeriesData);
+    candlestickVolumeInstance.setData(volumeSeriesData.map(d => ({ time: d.time, value: d.value })));
+    return;
+  } else {
+    const aggregatedCandles = [];
+    const aggregatedVolumes = [];
+    for (let i = period - candleSeriesData[0].time % period; i < candleSeriesData.length; i += period) {
+      const chunk = candleSeriesData.slice(i, i + period);
+      const open = chunk[0].open;
+      const close = chunk[chunk.length - 1].close;
+      const high = Math.max(...chunk.map(c => c.high));
+      const low = Math.min(...chunk.map(c => c.low));
+      const volume = chunk.reduce((sum, c) => sum + Number(c.volume), 0);
+      const time = Math.floor(Number(chunk[0].time) / period) * period;
+      aggregatedCandles.push({ time, open, high, low, close });
+      aggregatedVolumes.push({ time, value: volume });
+    }
+    candlestickSeriesInstance.setData(aggregatedCandles);
+    candlestickVolumeInstance.setData(aggregatedVolumes);
+    return
+  }
+}
+
+function aggregateLastCandleToPeriod(incoming, period) {
+  const bucketStartTime = Math.floor(Number(incoming.time) / period) * period;
+  let bucketCandles = candleSeriesData.filter(c => Math.floor(Number(c.time) / period) * period === bucketStartTime);
+  if (bucketCandles.length === 0) {
+    return;
+  } else {
+    const open = bucketCandles[0].open;
+    const close = bucketCandles[bucketCandles.length - 1].close;
+    const high = Math.max(...bucketCandles.map(c => c.high));
+    const low = Math.min(...bucketCandles.map(c => c.low));
+    const volume = bucketCandles.reduce((sum, c) => sum + Number(c.volume), 0);
+    const aggregatedCandle = { 
+      time: bucketStartTime, 
+      open: open,
+      high: high,
+      low: low,
+      close: close
+    };
+    const aggregatedVolume = { time: bucketStartTime, value: volume };
+    candlestickSeriesInstance.update(aggregatedCandle);
+    candlestickVolumeInstance.update(aggregatedVolume);
+  }
+}
+
+
+window.chart = { initChart, updateCandlSeries, updateChart, emptyChart, aggregateToPeriod, getCandleData: () => candleSeriesData, getVolumeData: () => volumeSeriesData };

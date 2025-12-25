@@ -93,7 +93,7 @@ class CandleBuilder:
             else:
                 trades.extend(taker.send_random_order(orderBook))
 
-        candle = self.make_candle_obj(time*86400, orderBook, trades)
+        candle = self.make_candle_obj(time, orderBook, trades)
         return candle
 
     def getRandomNextCandleRow(self, time, orderBook, taker, maker, numTrades):
@@ -105,5 +105,5 @@ class CandleBuilder:
             else:
                 trades.extend(taker.send_random_order(orderBook))
 
-        candle = self.make_candle_row(time*86400, orderBook, trades)
+        candle = self.make_candle_row(time, orderBook, trades)
         return candle

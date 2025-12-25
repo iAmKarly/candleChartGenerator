@@ -10,8 +10,8 @@ function connectWebSocket(onMessage, onStatus) {
   return socket;
 }
 
-async function fetchHistory(limit = 100) {
-  const res = await fetch(`${API_URL_HTTP}/history?limit=${limit}`);
+async function fetchHistory(limit = 100, periodSeconds = 1) {
+  const res = await fetch(`${API_URL_HTTP}/history?limit=${limit*periodSeconds}`);
   return res.ok ? res.json() : Promise.reject(res.statusText);
 }
 
