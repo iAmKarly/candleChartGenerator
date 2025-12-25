@@ -40,7 +40,7 @@ async def ws_endpoint(websocket: WebSocket):
                 if candle.get("time") != last_sent_time:
                     await websocket.send_json(candle)
                     last_sent_time = candle.get("time")
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         print("WebSocket client disconnected")
         pass
