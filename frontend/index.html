@@ -14,22 +14,33 @@
     
     <button id="connect-btn">Connect to Feed</button>
     <button id="history-btn">Fetch History (HTTP GET)</button>
+    <br>
+    <label for="period-select">Select Candle Period:</label>
     <select id="period-select">
-        <option value="1 second">1 Second</option>
+        <option value="1 second" selected>1 Second</option>
         <option value="5 seconds">5 Seconds</option>
         <option value="15 seconds">15 Seconds</option>
         <option value="30 seconds">30 Seconds</option>
+    </select>
+    <br>
+    <label for="trades-per-second">Select trades per second ratio:</label>
+    <select id="trades-per-second">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+    </select>
+    <br>
+    <label for="maker-taker-ratio">Select Maker-Taker Ratio:</label>
+    <select id="maker-taker-ratio">
+        <option value="0.3" selected>0.3</option>
+        <option value="0.5">0.5</option>
+        <option value="0.8">0.8</option>
     </select>
 
     <h2>Latest Candle Data (WebSocket)</h2>
     <div id="candle-output">
         Awaiting data...
     </div>
-
-    <h2>Past 10 Candles (HTTP History)</h2>
-    <ul id="history-list">
-        <li>No history loaded.</li>
-    </ul>
 
     <h2>Candle Stick Chart</h2>
     <div id="chart-div"></div>

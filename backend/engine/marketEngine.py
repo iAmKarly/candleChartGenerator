@@ -13,7 +13,7 @@ class MarketEngine:
         self.maker = MarketMaker()
         self.candleBuilder = CandleBuilder()
         self.candles = pd.DataFrame()
-        self.numTrades = 10
+        self.numTradesPerSecond = 10
         self.time = 0
 
     def start(self, startPrice: float = 100.0, startQuantity: float = 50.0):
@@ -23,7 +23,6 @@ class MarketEngine:
         self.orderBook.place_order(order)
         order = Order(side="sell", price=startPrice+1.0, quantity=startQuantity)
         self.orderBook.place_order(order)
-        
 
     def stop(self):
         self.running = False
@@ -33,7 +32,7 @@ class MarketEngine:
             return None
 
         self.time += 1
-        candle = self.candleBuilder.getRandomNextCandleRow(self.time, self.orderBook, self.taker, self.maker, self.numTrades)
+        candle = self.candleBuilder.getRandomNextCandleRow(self.time, self.orderBook, self.taker, self.maker, self.numTradesPerSecond)
 
         self.candles = pd.concat([self.candles, pd.DataFrame(candle)], ignore_index=True)  
         return candle
