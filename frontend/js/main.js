@@ -25,14 +25,28 @@ function init() {
         else if (value === '5 seconds') periodDD = 5;
         else if (value === '15 seconds') periodDD = 15;
         else if (value === '30 seconds') periodDD = 30;
-        console.log('Selected period:', periodDD);
         period = periodDD;
         try {
             const candles = await api.fetchHistory(100, period);
             window.chart.updateCandlSeries(candles, period); 
+            console.log('Updated chart with new period data', period);
         } catch {
             ui.updateStatus('Failed to load history', 'status-disconnected');
         }
+    });
+
+    document.getElementById('trades-per-second').addEventListener('change', async(e) => {
+        const tps = parseInt(e.target.value);
+        window.chart.emptyChart();
+        await window.api.setTradesPerSecond(tps);
+        console.log('Updated trades per second to:', tps);
+    });
+
+    document.getElementById('maker-taker-ratio').addEventListener('change', async (e) => {
+        const ratio = parseFloat(e.target.value);
+        window.chart.emptyChart();
+        await window.api.setMakerTakerRatio(ratio);
+        console.log('Updated maker-taker ratio to:', ratio);
     });
 }
 

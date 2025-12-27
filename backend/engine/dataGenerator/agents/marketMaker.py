@@ -2,26 +2,31 @@ from engine.dataGenerator.order import Order
 import random
 
 class MarketMaker:
-    def __init__(self, starting_price=100.0):
+    def __init__(self, starting_price=100.0, buySellRatio=0.5, minSpread=0.001, maxSpread=0.02, maxqty=1000.0, lamdaQty=10.0):
         self.last_price = starting_price
+        self.buySellRatio = buySellRatio
+        self.minSpread = minSpread
+        self.maxSpread = maxSpread
+        self.maxqty = maxqty
+        self.lamdaQty = lamdaQty
 
     def send_order(self, orderBook, order):
         orderBook.place_order(order)
     
     def send_random_order(self, orderBook):
-        side = random.choices(["buy", "sell"], weights=[0.5, 0.5])[0]
+        side = random.choices(["buy", "sell"], weights=[self.buySellRatio, 1 - self.buySellRatio])[0]
         best_ask = orderBook.best_ask()
         best_bid = orderBook.best_bid()
         
         if side == "buy":
             reference = best_bid if best_bid is not None else (best_ask if best_ask is not None else self.last_price)
-            price = reference * (1 - random.uniform(0.001, 0.02))
+            price = reference * (1 - random.uniform(self.minSpread, self.maxSpread))
         elif side == "sell":
             reference = best_ask if best_ask is not None else (best_bid if best_bid is not None else self.last_price)
-            price = reference * (1 + random.uniform(0.001, 0.02))
+            price = reference * (1 + random.uniform(self.minSpread, self.maxSpread))
 
         price = max(price, 0.01)
-        qty = max(0.0001, min(random.expovariate(1/10), 1000))
+        qty = max(0.0001, min(random.expovariate(1/self.lamdaQty), self.maxqty))
         self.last_price = price  # Update last price
 
         order = Order(side=side, price=price, quantity=qty)
