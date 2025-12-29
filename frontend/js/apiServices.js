@@ -11,6 +11,20 @@ function connectWebSocket(onMessage, onStatus) {
   return socket;
 }
 
+function startGenerator() {
+  return fetch(`${API_URL_HTTP}/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(res => res.ok ? res.json() : Promise.reject(res.statusText));
+}
+
+function stopGenerator() {
+  return fetch(`${API_URL_HTTP}/stop`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(res => res.ok ? res.json() : Promise.reject(res.statusText));
+}
+
 async function fetchHistory(limit = 100, periodSeconds = 1) {
   const res = await fetch(`${API_URL_HTTP}/history?limit=${limit*periodSeconds}`);
   return res.ok ? res.json() : Promise.reject(res.statusText);
@@ -72,4 +86,4 @@ async function setMakerTakerRatio(ratio) {
   }
 }
 
-window.api = { connectWebSocket, fetchHistory, setTradesPerSecond, setMakerTakerRatio };
+window.api = { connectWebSocket, fetchHistory, setTradesPerSecond, setMakerTakerRatio , startGenerator, stopGenerator };
