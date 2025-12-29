@@ -1,6 +1,7 @@
 function init() {
     window.chart.initChart();
     let period = 1;
+
     document.getElementById('connect-btn').addEventListener('click', () => {
     if (window._ws) return;
         window._ws = api.connectWebSocket((candle) => {
@@ -8,6 +9,16 @@ function init() {
             window.chart.updateCandlSeries(candle, period);
         }, ui.updateStatus);
     });
+
+    document.getElementById('start-btn').addEventListener('click', async () => {
+        console.log(await window.api.startGenerator());
+        console.log('Data generator started');
+    });
+
+    document.getElementById('stop-btn').addEventListener('click', async () => {
+        console.log(await window.api.stopGenerator());
+        console.log('Data generator stopped');
+    }); 
 
     document.getElementById('history-btn').addEventListener('click', async () => {
         try {
